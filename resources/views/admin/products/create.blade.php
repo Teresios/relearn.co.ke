@@ -458,6 +458,22 @@
                                 @enderror
                                 <div class="form-text">Optional: Link to preview or demo of the product</div>
                             </div>
+                            <div class="mb-3">
+                                <label for="sample_file" class="form-label">
+                                    <i class="fas fa-book-open me-1 text-info"></i>
+                                    Free Sample / Preview File (PDF)
+                                    <span class="badge bg-info text-dark">Optional</span>
+                                </label>
+                                <input type="file" class="form-control @error('sample_file') is-invalid @enderror"
+                                       id="sample_file" name="sample_file" accept=".pdf">
+                                @error('sample_file')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">
+                                    Upload a free sample PDF (e.g. first chapter) that visitors can download without purchasing.
+                                    This helps build trust and encourages purchases.
+                                </div>
+                            </div>
                         </div>
                     </div>
 

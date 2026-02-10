@@ -131,6 +131,7 @@ class ProductController extends Controller
             'file' => 'nullable|file|max:51200', // ePub version (optional)
             'pdf_file' => 'nullable|file|mimes:pdf|max:51200', // 50MB max - PDF version (optional)
             'zip_file' => 'nullable|file|mimes:zip|max:102400', // 100MB max - ZIP version (optional)
+            'sample_file' => 'nullable|file|mimes:pdf|max:10240', // 10MB max - Free sample PDF
             'preview_url' => 'nullable|url',
             'tags' => 'nullable|string',
             'is_active' => 'boolean',
@@ -179,6 +180,18 @@ class ProductController extends Controller
                 $zipFilePath = $zipFile->store('products/files/zip', 'public');
             }
 
+            // Handle sample/preview PDF upload (optional)
+            $sampleFilePath = null;
+            $sampleFileName = null;
+            $sampleFileSize = null;
+
+            if ($request->hasFile('sample_file')) {
+                $sampleFile = $request->file('sample_file');
+                $sampleFileName = $sampleFile->getClientOriginalName();
+                $sampleFileSize = $sampleFile->getSize();
+                $sampleFilePath = $sampleFile->store('products/samples', 'public');
+            }
+
             // Process tags
             $tags = $request->tags ? array_map('trim', explode(',', $request->tags)) : null;
 
@@ -200,6 +213,9 @@ class ProductController extends Controller
                 'zip_file_path' => $zipFilePath,
                 'zip_file_name' => $zipFileName,
                 'zip_file_size' => $zipFileSize,
+                'sample_file_path' => $sampleFilePath,
+                'sample_file_name' => $sampleFileName,
+                'sample_file_size' => $sampleFileSize,
                 'preview_url' => $request->preview_url,
                 'tags' => $request->tags,
                 'is_active' => $request->has('is_active'),
@@ -351,6 +367,7 @@ class ProductController extends Controller
             'file' => 'nullable|file|max:51200',
             'pdf_file' => 'nullable|file|mimes:pdf|max:51200', // PDF version (optional)
             'zip_file' => 'nullable|file|mimes:zip|max:102400', // ZIP version (optional)
+            'sample_file' => 'nullable|file|mimes:pdf|max:10240', // 10MB max - Free sample PDF
             'preview_url' => 'nullable|url',
             'tags' => 'nullable|string',
             'is_active' => 'boolean',
@@ -441,6 +458,29 @@ class ProductController extends Controller
                 $updateData['zip_file_path'] = null;
                 $updateData['zip_file_name'] = null;
                 $updateData['zip_file_size'] = null;
+            }
+
+            // Handle new sample/preview PDF upload
+            if ($request->hasFile('sample_file')) {
+                // Delete old sample file
+                if ($product->sample_file_path && Storage::disk('public')->exists($product->sample_file_path)) {
+                    Storage::disk('public')->delete($product->sample_file_path);
+                }
+
+                $sampleFile = $request->file('sample_file');
+                $updateData['sample_file_name'] = $sampleFile->getClientOriginalName();
+                $updateData['sample_file_size'] = $sampleFile->getSize();
+                $updateData['sample_file_path'] = $sampleFile->store('products/samples', 'public');
+            }
+
+            // Allow removal of sample file via checkbox
+            if ($request->has('remove_sample') && $request->remove_sample) {
+                if ($product->sample_file_path && Storage::disk('public')->exists($product->sample_file_path)) {
+                    Storage::disk('public')->delete($product->sample_file_path);
+                }
+                $updateData['sample_file_path'] = null;
+                $updateData['sample_file_name'] = null;
+                $updateData['sample_file_size'] = null;
             }
 
             // Add editor tracking

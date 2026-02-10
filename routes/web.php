@@ -43,6 +43,7 @@ Route::get('/test', fn () => 'Laravel is working!');
 Route::get('/', [\App\Http\Controllers\ProductController::class, 'index'])->name('home');
 Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [HomeController::class, 'show'])->name('products.show');
+Route::get('/products/{product}/sample', [\App\Http\Controllers\ProductController::class, 'downloadSample'])->name('products.sample');
 Route::view('/terms', 'terms')->name('terms');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');

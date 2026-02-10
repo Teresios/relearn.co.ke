@@ -30,6 +30,9 @@ class Product extends Model
         'is_active',
         'preview_url',
         'tags',
+        'sample_file_path',
+        'sample_file_name',
+        'sample_file_size',
         'created_by_user_id',
         'updated_by_user_id',
     ];
@@ -166,6 +169,33 @@ class Product extends Model
     public function hasZip()
     {
         return !empty($this->zip_file_path);
+    }
+
+    /**
+     * Check if sample/preview file exists.
+     */
+    public function hasSample()
+    {
+        return !empty($this->sample_file_path);
+    }
+
+    /**
+     * Get the formatted sample file size.
+     */
+    public function getFormattedSampleFileSizeAttribute()
+    {
+        if (!$this->sample_file_size) {
+            return null;
+        }
+
+        $bytes = $this->sample_file_size;
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $i = 0;
+        while ($bytes > 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+        return round($bytes, 2) . ' ' . $units[$i];
     }
 
     /**

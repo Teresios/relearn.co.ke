@@ -335,6 +335,13 @@
                     Preview
                 </a>
             @endif
+            @if($product->hasSample())
+                <a href="{{ route('products.sample', $product) }}" class="action-btn outline" style="border-color: #28a745; color: #28a745;" aria-label="Download Free Sample">
+                    <i class="fas fa-file-pdf me-2" aria-hidden="true"></i>
+                    📖 Free Sample
+                    <small style="opacity:.7; margin-left:4px;">({{ $product->formatted_sample_file_size }})</small>
+                </a>
+            @endif
             @auth
                 @php
                     $userHasPurchased = Auth::user()->orders()

@@ -296,6 +296,32 @@
                             @enderror
                             <div class="form-text">Optional: Link to preview or demo of the product</div>
                         </div>
+                        <div class="mb-3">
+                            <label for="sample_file" class="form-label">
+                                <i class="fas fa-book-open me-1 text-info"></i>
+                                Free Sample / Preview File (PDF)
+                                <span class="badge bg-info text-dark">Optional</span>
+                            </label>
+                            @if($product->hasSample())
+                                <div class="alert alert-info py-2 mb-2">
+                                    <i class="fas fa-file-pdf me-1"></i>
+                                    Current: <strong>{{ $product->sample_file_name }}</strong>
+                                    ({{ $product->formatted_sample_file_size }})
+                                    <div class="form-check mt-1">
+                                        <input class="form-check-input" type="checkbox" id="remove_sample" name="remove_sample" value="1">
+                                        <label class="form-check-label text-danger" for="remove_sample">Remove sample file</label>
+                                    </div>
+                                </div>
+                            @endif
+                            <input type="file" class="form-control @error('sample_file') is-invalid @enderror"
+                                   id="sample_file" name="sample_file" accept=".pdf">
+                            @error('sample_file')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                Upload a free sample PDF (e.g. first chapter) that visitors can download without purchasing.
+                            </div>
+                        </div>
                     </div>
                 </div>
 

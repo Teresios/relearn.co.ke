@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -50,5 +51,24 @@ class ProductController extends Controller
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
         ]);
+    }
+
+    /**
+     * Download a free sample file for a product.
+     */
+    public function downloadSample(Product $product)
+    {
+        if (!$product->hasSample()) {
+            abort(404, 'No sample available for this product.');
+        }
+
+        if (!Storage::disk('public')->exists($product->sample_file_path)) {
+            abort(404, 'Sample file not found.');
+        }
+
+        return Storage::disk('public')->download(
+            $product->sample_file_path,
+            $product->sample_file_name ?? 'sample.pdf'
+        );
     }
 }
