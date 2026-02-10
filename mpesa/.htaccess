@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Handle callback URLs with enrollment ID
+RewriteRule ^callback/mentorship/([0-9]+)/?$ callback/mentorship/index.php?id=$1 [L,QSA]
+
+# Handle timeout URLs with enrollment ID  
+RewriteRule ^timeout/mentorship/([0-9]+)/?$ timeout/mentorship/index.php?id=$1 [L,QSA]
+
+# Allow direct access to index.php files
+RewriteRule ^callback/mentorship/index\.php$ - [L]
+RewriteRule ^timeout/mentorship/index\.php$ - [L]

@@ -1,0 +1,7 @@
+relearnc
+!RS771]k7fhCMq
+binary
+cd domains/relearn.co.ke/relearn/app/Models
+lcd c:\Users\muriit_ter\Downloads\relearn.16.01.2026\relearn\app\Models
+put Product.php
+quit
