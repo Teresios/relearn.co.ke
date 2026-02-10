@@ -3,8 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\OrderCompleted;
+use App\Models\Order;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class SendDiscordPurchaseNotification
 {
@@ -54,6 +56,32 @@ class SendDiscordPurchaseNotification
                 }
             }
 
+            // --- Sales statistics ---
+            $now = Carbon::now();
+
+            $todayCount = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereDate('updated_at', $now->toDateString())
+                ->count();
+            $todayValue = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereDate('updated_at', $now->toDateString())
+                ->sum('amount');
+
+            $weekCount = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereBetween('updated_at', [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()])
+                ->count();
+            $weekValue = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereBetween('updated_at', [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()])
+                ->sum('amount');
+
+            $monthCount = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereMonth('updated_at', $now->month)
+                ->whereYear('updated_at', $now->year)
+                ->count();
+            $monthValue = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereMonth('updated_at', $now->month)
+                ->whereYear('updated_at', $now->year)
+                ->sum('amount');
+
             $embed = [
                 'title' => '💰 New Purchase Completed!',
                 'color' => 0x28A745, // Green
@@ -92,6 +120,21 @@ class SendDiscordPurchaseNotification
                         'name' => '🤝 Affiliate',
                         'value' => $affiliateInfo,
                         'inline' => false,
+                    ],
+                    [
+                        'name' => '📅 Today',
+                        'value' => "{$todayCount} sales\nKES " . number_format($todayValue, 2),
+                        'inline' => true,
+                    ],
+                    [
+                        'name' => '📆 This Week',
+                        'value' => "{$weekCount} sales\nKES " . number_format($weekValue, 2),
+                        'inline' => true,
+                    ],
+                    [
+                        'name' => '🗓️ This Month',
+                        'value' => "{$monthCount} sales\nKES " . number_format($monthValue, 2),
+                        'inline' => true,
                     ],
                 ],
                 'footer' => [
