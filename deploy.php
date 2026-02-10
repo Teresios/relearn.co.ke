@@ -66,15 +66,22 @@ if ($ref !== "refs/heads/{$branch}") {
 // ============================================
 logDeploy("🚀 Deployment started by push from " . ($data['pusher']['name'] ?? 'unknown'));
 
+// Set HOME for composer (required when running from web context)
+$home_dir = getenv('HOME') ?: posix_getpwuid(posix_getuid())['dir'] ?? '/home/relearnc';
+putenv("HOME={$home_dir}");
+putenv("COMPOSER_HOME={$home_dir}/.composer");
+
 $commands = [
     "cd {$repo_path}",
+    "export HOME={$home_dir}",
+    "export COMPOSER_HOME={$home_dir}/.composer",
     "git fetch origin {$branch} 2>&1",
     "git reset --hard origin/{$branch} 2>&1",
-    "composer install --no-dev --optimize-autoloader 2>&1",
-    "php artisan config:cache 2>&1",
-    "php artisan route:cache 2>&1",
-    "php artisan view:cache 2>&1",
-    "php artisan migrate --force 2>&1",
+    "composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || true",
+    "php artisan config:cache 2>&1 || true",
+    "php artisan route:cache 2>&1 || true",
+    "php artisan view:cache 2>&1 || true",
+    "php artisan migrate --force 2>&1 || true",
 ];
 
 $output = [];
