@@ -15,6 +15,10 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\AffiliateLinkClicked::class => [
             \App\Listeners\SendDiscordAffiliateLinkNotification::class,
         ],
+        \App\Events\OrderCompleted::class => [
+            \App\Listeners\SendDiscordPurchaseNotification::class,
+            \App\Listeners\SendOrderThankYouEmail::class,
+        ],
     ];
 
     /**

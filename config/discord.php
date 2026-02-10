@@ -13,4 +13,6 @@ return [
 
     'affiliate_webhook' => env('DISCORD_AFFILIATE_WEBHOOK', ''),
 
+    'purchase_webhook' => env('DISCORD_PURCHASE_WEBHOOK', ''),
+
 ];
