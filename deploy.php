@@ -68,6 +68,7 @@ logDeploy("🚀 Deployment started by push from " . ($data['pusher']['name'] ?? 
 
 // Set HOME for composer (required when running from web context)
 $home_dir = getenv('HOME') ?: '/home/relearnc';
+$laravel_root = '/home/relearnc/domains/relearn.co.ke/relearn';
 putenv("HOME={$home_dir}");
 putenv("COMPOSER_HOME={$home_dir}/.composer");
 
@@ -77,6 +78,7 @@ $commands = [
     "export COMPOSER_HOME={$home_dir}/.composer",
     "git fetch origin {$branch} 2>&1",
     "git reset --hard origin/{$branch} 2>&1",
+    "cd {$laravel_root}",
     "composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || true",
     "php artisan config:cache 2>&1 || true",
     "php artisan route:cache 2>&1 || true",
