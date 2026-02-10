@@ -227,7 +227,7 @@ class MpesaService
     /**
      * Format phone number to required format (254XXXXXXXXX).
      */
-    private function formatPhoneNumber($phoneNumber)
+    public function formatPhoneNumber($phoneNumber)
     {
         // Remove any non-digit characters
         $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
@@ -251,26 +251,6 @@ class MpesaService
     {
         $formatted = $this->formatPhoneNumber($phoneNumber);
         return preg_match('/^254[0-9]{9}$/', $formatted);
-    }
-
-    /**
-     * Format phone number (public accessor for controllers)
-     */
-    public function formatPhoneNumber($phoneNumber)
-    {
-        // Remove any non-digit characters
-        $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
-
-        // Handle different formats
-        if (substr($phoneNumber, 0, 3) === '254') {
-            return $phoneNumber;
-        } elseif (substr($phoneNumber, 0, 1) === '0') {
-            return '254' . substr($phoneNumber, 1);
-        } elseif (substr($phoneNumber, 0, 1) === '7' || substr($phoneNumber, 0, 1) === '1') {
-            return '254' . $phoneNumber;
-        }
-
-        return $phoneNumber;
     }
 
     /**

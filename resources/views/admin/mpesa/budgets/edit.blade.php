@@ -2,7 +2,7 @@
 
 @section('title', 'Edit Budget - ' . $budget->name)
 
-@section('content')
+@section('mpesa-content')
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
@@ -45,35 +45,53 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="type" class="form-label">Budget Type *</label>
-                                <select class="form-select" id="type" name="type" required>
-                                    <option value="daily" {{ old('type', $budget->type) == 'daily' ? 'selected' : '' }}>Daily</option>
-                                    <option value="weekly" {{ old('type', $budget->type) == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                    <option value="monthly" {{ old('type', $budget->type) == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                <label for="period_type" class="form-label">Period Type *</label>
+                                <select class="form-select" id="period_type" name="period_type" required>
+                                    <option value="daily" {{ old('period_type', $budget->period_type) == 'daily' ? 'selected' : '' }}>Daily</option>
+                                    <option value="weekly" {{ old('period_type', $budget->period_type) == 'weekly' ? 'selected' : '' }}>Weekly</option>
+                                    <option value="monthly" {{ old('period_type', $budget->period_type) == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                    <option value="custom" {{ old('period_type', $budget->period_type) == 'custom' ? 'selected' : '' }}>Custom</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="transaction_type" class="form-label">Transaction Type *</label>
-                                <select class="form-select" id="transaction_type" name="transaction_type" required>
-                                    <option value="">All Types</option>
-                                    <option value="c2b" {{ old('transaction_type', $budget->transaction_type) == 'c2b' ? 'selected' : '' }}>C2B (Customer to Business)</option>
-                                    <option value="b2c" {{ old('transaction_type', $budget->transaction_type) == 'b2c' ? 'selected' : '' }}>B2C (Business to Customer)</option>
-                                    <option value="b2b" {{ old('transaction_type', $budget->transaction_type) == 'b2b' ? 'selected' : '' }}>B2B (Business to Business)</option>
-                                    <option value="stk_push" {{ old('transaction_type', $budget->transaction_type) == 'stk_push' ? 'selected' : '' }}>STK Push</option>
-                                </select>
+                                <label class="form-label">Transaction Types</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach(['c2b' => 'C2B', 'b2c' => 'B2C', 'b2b' => 'B2B', 'stk_push' => 'STK Push'] as $value => $label)
+                                        <div class="form-check">
+                                            <input type="checkbox" name="transaction_types[]" value="{{ $value }}" class="form-check-input" id="type_{{ $value }}" 
+                                                {{ in_array($value, old('transaction_types', $budget->transaction_types ?? [])) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="type_{{ $value }}">{{ $label }}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <small class="text-muted">Leave unchecked for all types</small>
+                            </div>
+                        </div>
+
+                        <div class="row custom-period" style="{{ old('period_type', $budget->period_type) == 'custom' ? '' : 'display: none;' }}">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" name="period_start" class="form-control" value="{{ old('period_start', $budget->period_start?->format('Y-m-d')) }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" name="period_end" class="form-control" value="{{ old('period_end', $budget->period_end?->format('Y-m-d')) }}">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="limit_amount" class="form-label">Budget Limit (KES) *</label>
-                                <input type="number" class="form-control" id="limit_amount" name="limit_amount" 
-                                       value="{{ old('limit_amount', $budget->limit_amount) }}" min="1" step="0.01" required>
+                                <label for="budget_limit" class="form-label">Budget Limit (KES) *</label>
+                                <input type="number" class="form-control" id="budget_limit" name="budget_limit" 
+                                       value="{{ old('budget_limit', $budget->budget_limit) }}" min="1" step="0.01" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="spent_amount" class="form-label">Current Spent Amount (KES)</label>
-                                <input type="number" class="form-control" id="spent_amount" name="spent_amount" 
-                                       value="{{ old('spent_amount', $budget->spent_amount) }}" min="0" step="0.01">
+                                <label class="form-label">Direction Filter</label>
+                                <select name="direction" class="form-select">
+                                    <option value="">All Directions</option>
+                                    <option value="inbound" {{ old('direction', $budget->direction) == 'inbound' ? 'selected' : '' }}>Inbound Only</option>
+                                    <option value="outbound" {{ old('direction', $budget->direction) == 'outbound' ? 'selected' : '' }}>Outbound Only</option>
+                                </select>
                             </div>
                         </div>
 
@@ -92,24 +110,21 @@
                             </div>
                         </div>
 
+                        <h6 class="border-bottom pb-2 mb-3 mt-3">Alert Settings</h6>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="reset_day" class="form-label">Reset Day</label>
-                                <input type="number" class="form-control" id="reset_day" name="reset_day" 
-                                       value="{{ old('reset_day', $budget->reset_day) }}" min="1" max="31" placeholder="1">
-                                <small class="text-muted">Day of month for monthly reset, or day of week (1=Mon) for weekly</small>
+                                <label for="alert_emails" class="form-label">Alert Emails (comma separated)</label>
+                                <input type="text" class="form-control" id="alert_emails" name="alert_emails" 
+                                       value="{{ old('alert_emails', is_array($budget->alert_emails) ? implode(', ', $budget->alert_emails) : $budget->alert_emails) }}" 
+                                       placeholder="admin@example.com, manager@example.com">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="reset_time" class="form-label">Reset Time</label>
-                                <input type="time" class="form-control" id="reset_time" name="reset_time" 
-                                       value="{{ old('reset_time', $budget->reset_time) }}">
+                                <label for="alert_phones" class="form-label">Alert Phones (comma separated)</label>
+                                <input type="text" class="form-control" id="alert_phones" name="alert_phones" 
+                                       value="{{ old('alert_phones', is_array($budget->alert_phones) ? implode(', ', $budget->alert_phones) : $budget->alert_phones) }}" 
+                                       placeholder="254712345678, 254798765432">
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="alert_email" class="form-label">Alert Email</label>
-                            <input type="email" class="form-control" id="alert_email" name="alert_email" 
-                                   value="{{ old('alert_email', $budget->alert_email) }}" placeholder="admin@example.com">
                         </div>
 
                         <div class="mb-3">
@@ -117,23 +132,40 @@
                             <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $budget->description) }}</textarea>
                         </div>
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
-                                       {{ old('is_active', $budget->is_active) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="is_active">
-                                    Budget is Active
-                                </label>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
+                                           {{ old('is_active', $budget->is_active) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_active">Budget is Active</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="alerts_enabled" name="alerts_enabled" value="1"
+                                           {{ old('alerts_enabled', $budget->alerts_enabled) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="alerts_enabled">Enable Alerts</label>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="auto_reset" name="auto_reset" value="1"
-                                       {{ old('auto_reset', $budget->auto_reset) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="auto_reset">
-                                    Auto-reset budget at period end
-                                </label>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="alert_on_warning" name="alert_on_warning" value="1"
+                                           {{ old('alert_on_warning', $budget->alert_on_warning) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="alert_on_warning">Alert on Warning</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="alert_on_critical" name="alert_on_critical" value="1"
+                                           {{ old('alert_on_critical', $budget->alert_on_critical) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="alert_on_critical">Alert on Critical</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="alert_on_exceeded" name="alert_on_exceeded" value="1"
+                                           {{ old('alert_on_exceeded', $budget->alert_on_exceeded) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="alert_on_exceeded">Alert on Exceeded</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="block_on_exceeded" name="block_on_exceeded" value="1"
+                                           {{ old('block_on_exceeded', $budget->block_on_exceeded) ? 'checked' : '' }}>
+                                    <label class="form-check-label text-danger" for="block_on_exceeded"><strong>Block Transactions When Exceeded</strong></label>
+                                </div>
                             </div>
                         </div>
 
@@ -155,7 +187,7 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $usage = $budget->limit_amount > 0 ? ($budget->spent_amount / $budget->limit_amount) * 100 : 0;
+                        $usage = $budget->budget_limit > 0 ? ($budget->spent_amount / $budget->budget_limit) * 100 : 0;
                     @endphp
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-1">
@@ -169,8 +201,8 @@
                         </div>
                     </div>
                     <p class="mb-1"><strong>Spent:</strong> KES {{ number_format($budget->spent_amount, 2) }}</p>
-                    <p class="mb-1"><strong>Remaining:</strong> KES {{ number_format(max(0, $budget->limit_amount - $budget->spent_amount), 2) }}</p>
-                    <p class="mb-0"><strong>Last Reset:</strong> {{ $budget->last_reset_at ? $budget->last_reset_at->format('M d, Y H:i') : 'Never' }}</p>
+                    <p class="mb-1"><strong>Remaining:</strong> KES {{ number_format(max(0, $budget->budget_limit - $budget->spent_amount), 2) }}</p>
+                    <p class="mb-0"><strong>Transactions:</strong> {{ $budget->transaction_count ?? 0 }}</p>
                 </div>
             </div>
 
@@ -203,4 +235,14 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.getElementById('period_type').addEventListener('change', function() {
+        document.querySelectorAll('.custom-period').forEach(el => {
+            el.style.display = this.value === 'custom' ? 'flex' : 'none';
+        });
+    });
+</script>
+@endpush
 @endsection

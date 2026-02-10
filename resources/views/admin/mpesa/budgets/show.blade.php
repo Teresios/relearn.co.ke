@@ -2,7 +2,7 @@
 
 @section('title', 'Budget Details - ' . $budget->name)
 
-@section('content')
+@section('mpesa-content')
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
@@ -46,15 +46,15 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $usage = $budget->limit_amount > 0 ? ($budget->spent_amount / $budget->limit_amount) * 100 : 0;
-                        $remaining = max(0, $budget->limit_amount - $budget->spent_amount);
+                        $usage = $budget->budget_limit > 0 ? ($budget->spent_amount / $budget->budget_limit) * 100 : 0;
+                        $remaining = max(0, $budget->budget_limit - $budget->spent_amount);
                         $statusClass = $usage >= ($budget->critical_threshold ?? 90) ? 'danger' : 
                                       ($usage >= ($budget->warning_threshold ?? 75) ? 'warning' : 'success');
                     @endphp
                     
                     <div class="row text-center mb-4">
                         <div class="col-md-4">
-                            <h3 class="text-primary">KES {{ number_format($budget->limit_amount, 2) }}</h3>
+                            <h3 class="text-primary">KES {{ number_format($budget->budget_limit, 2) }}</h3>
                             <p class="text-muted mb-0">Total Budget</p>
                         </div>
                         <div class="col-md-4">
@@ -109,7 +109,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-history text-secondary me-2"></i>Recent Transactions</h5>
-                    <a href="{{ route('admin.mpesa.transactions.index', ['type' => $budget->transaction_type]) }}" class="btn btn-sm btn-outline-primary">
+                    <a href="{{ route('admin.mpesa.transactions.index') }}" class="btn btn-sm btn-outline-primary">
                         View All
                     </a>
                 </div>
@@ -173,16 +173,24 @@
                 <div class="card-body">
                     <table class="table table-borderless mb-0">
                         <tr>
-                            <td class="text-muted">Type</td>
-                            <td><strong>{{ ucfirst($budget->type) }}</strong></td>
+                            <td class="text-muted">Period Type</td>
+                            <td><strong>{{ ucfirst($budget->period_type) }}</strong></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Transaction Type</td>
+                            <td class="text-muted">Transaction Types</td>
                             <td>
-                                <span class="badge bg-info">
-                                    {{ $budget->transaction_type ? strtoupper($budget->transaction_type) : 'All Types' }}
-                                </span>
+                                @if(!empty($budget->transaction_types))
+                                    @foreach($budget->transaction_types as $type)
+                                        <span class="badge bg-info">{{ strtoupper($type) }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="badge bg-secondary">All Types</span>
+                                @endif
                             </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Direction</td>
+                            <td>{{ $budget->direction ? ucfirst($budget->direction) : 'All' }}</td>
                         </tr>
                         <tr>
                             <td class="text-muted">Status</td>
@@ -195,24 +203,16 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Auto Reset</td>
-                            <td>{{ $budget->auto_reset ? 'Yes' : 'No' }}</td>
+                            <td class="text-muted">Alerts</td>
+                            <td>{{ $budget->alerts_enabled ? 'Enabled' : 'Disabled' }}</td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Reset Day</td>
-                            <td>{{ $budget->reset_day ?? 'N/A' }}</td>
+                            <td class="text-muted">Alert Emails</td>
+                            <td>{{ !empty($budget->alert_emails) ? implode(', ', $budget->alert_emails) : 'Not set' }}</td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Reset Time</td>
-                            <td>{{ $budget->reset_time ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Alert Email</td>
-                            <td>{{ $budget->alert_email ?? 'Not set' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Last Reset</td>
-                            <td>{{ $budget->last_reset_at ? $budget->last_reset_at->format('M d, Y H:i') : 'Never' }}</td>
+                            <td class="text-muted">Block on Exceeded</td>
+                            <td>{{ $budget->block_on_exceeded ? 'Yes' : 'No' }}</td>
                         </tr>
                         <tr>
                             <td class="text-muted">Created</td>

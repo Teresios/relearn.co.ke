@@ -2,7 +2,7 @@
 
 @section('title', 'Forwarding Rule - ' . $forwarding->name)
 
-@section('content')
+@section('mpesa-content')
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
@@ -55,10 +55,18 @@
                         <!-- Source -->
                         <div class="col-md-4 text-center">
                             <div class="border rounded p-3 bg-light">
-                                <i class="fas {{ $forwarding->source_type == 'personal' ? 'fa-user' : 'fa-building' }} fa-3x text-primary mb-2"></i>
+                                <i class="fas {{ $forwarding->source_phone ? 'fa-user' : 'fa-building' }} fa-3x text-primary mb-2"></i>
                                 <h6 class="mb-1">Source</h6>
-                                <p class="mb-0"><strong>{{ ucfirst($forwarding->source_type) }}</strong></p>
-                                <small class="text-muted">{{ $forwarding->source_identifier ?: 'Any' }}</small>
+                                @if($forwarding->source_phone)
+                                    <p class="mb-0"><strong>Phone</strong></p>
+                                    <small class="text-muted">{{ $forwarding->source_phone }}</small>
+                                @elseif($forwarding->source_shortcode)
+                                    <p class="mb-0"><strong>Shortcode</strong></p>
+                                    <small class="text-muted">{{ $forwarding->source_shortcode }}</small>
+                                @else
+                                    <p class="mb-0"><strong>Any Source</strong></p>
+                                    <small class="text-muted">All incoming</small>
+                                @endif
                             </div>
                         </div>
                         <!-- Arrow -->
@@ -66,13 +74,13 @@
                             <div class="py-3">
                                 <i class="fas fa-long-arrow-alt-right fa-3x text-success"></i>
                                 <div class="mt-2">
-                                    @if($forwarding->percentage && $forwarding->percentage < 100)
-                                        <span class="badge bg-warning">{{ $forwarding->percentage }}%</span>
+                                    @if($forwarding->forward_percentage && $forwarding->forward_percentage < 100)
+                                        <span class="badge bg-warning">{{ $forwarding->forward_percentage }}%</span>
                                     @endif
-                                    @if($forwarding->flat_deduction)
-                                        <span class="badge bg-info">-KES {{ number_format($forwarding->flat_deduction, 2) }}</span>
+                                    @if($forwarding->flat_fee)
+                                        <span class="badge bg-info">-KES {{ number_format($forwarding->flat_fee, 2) }}</span>
                                     @endif
-                                    @if((!$forwarding->percentage || $forwarding->percentage == 100) && !$forwarding->flat_deduction)
+                                    @if((!$forwarding->forward_percentage || $forwarding->forward_percentage == 100) && !$forwarding->flat_fee)
                                         <span class="badge bg-success">100%</span>
                                     @endif
                                 </div>
@@ -81,10 +89,10 @@
                         <!-- Destination -->
                         <div class="col-md-4 text-center">
                             <div class="border rounded p-3 bg-light">
-                                <i class="fas {{ $forwarding->destination_type == 'phone' ? 'fa-mobile-alt' : 'fa-store' }} fa-3x text-success mb-2"></i>
+                                <i class="fas fa-store fa-3x text-success mb-2"></i>
                                 <h6 class="mb-1">Destination</h6>
-                                <p class="mb-0"><strong>{{ ucfirst($forwarding->destination_type) }}</strong></p>
-                                <small class="text-muted">{{ $forwarding->destination_identifier }}</small>
+                                <p class="mb-0"><strong>Shortcode</strong></p>
+                                <small class="text-muted">{{ $forwarding->destination_shortcode }}</small>
                                 @if($forwarding->destination_account)
                                     <br><small class="text-muted">Acc: {{ $forwarding->destination_account }}</small>
                                 @endif
@@ -117,11 +125,11 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <td class="text-muted">Forward Percentage</td>
-                                    <td><strong>{{ $forwarding->percentage ?? 100 }}%</strong></td>
+                                    <td><strong>{{ $forwarding->forward_percentage ?? 100 }}%</strong></td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Flat Deduction</td>
-                                    <td><strong>{{ $forwarding->flat_deduction ? 'KES ' . number_format($forwarding->flat_deduction, 2) : 'None' }}</strong></td>
+                                    <td class="text-muted">Flat Fee</td>
+                                    <td><strong>{{ $forwarding->flat_fee ? 'KES ' . number_format($forwarding->flat_fee, 2) : 'None' }}</strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -213,19 +221,29 @@
                 <div class="card-body">
                     <div class="row text-center mb-3">
                         <div class="col-6">
-                            <h3 class="text-primary mb-0">{{ $forwarding->times_executed ?? 0 }}</h3>
-                            <small class="text-muted">Times Executed</small>
+                            <h3 class="text-primary mb-0">{{ $forwarding->total_forwarded_count ?? 0 }}</h3>
+                            <small class="text-muted">Times Forwarded</small>
                         </div>
                         <div class="col-6">
-                            <h3 class="text-success mb-0">{{ $forwarding->priority ?? 0 }}</h3>
-                            <small class="text-muted">Priority</small>
+                            <h3 class="text-success mb-0">KES {{ number_format($forwarding->total_forwarded_amount ?? 0, 0) }}</h3>
+                            <small class="text-muted">Total Amount</small>
                         </div>
                     </div>
+                    @if($forwarding->failed_forward_count > 0)
+                    <div class="text-center mb-3">
+                        <span class="text-danger">{{ $forwarding->failed_forward_count }} failed</span>
+                        <span class="text-muted"> | {{ $forwarding->getSuccessRate() }}% success rate</span>
+                    </div>
+                    @endif
                     <hr>
                     <p class="mb-2">
                         <i class="fas fa-clock text-muted me-2"></i>
-                        <strong>Last Executed:</strong><br>
-                        {{ $forwarding->last_executed_at ? $forwarding->last_executed_at->format('M d, Y H:i') : 'Never' }}
+                        <strong>Last Forward:</strong><br>
+                        {{ $forwarding->last_forward_at ? $forwarding->last_forward_at->format('M d, Y H:i') : 'Never' }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="fas fa-robot text-muted me-2"></i>
+                        <strong>Auto-Forward:</strong> {{ $forwarding->auto_forward ? 'Enabled' : 'Disabled' }}
                     </p>
                     <p class="mb-2">
                         <i class="fas fa-calendar-plus text-muted me-2"></i>
@@ -290,11 +308,11 @@
 <script>
 function calculateForward() {
     const amount = parseFloat(document.getElementById('calc_input').value) || 0;
-    const percentage = {{ $forwarding->percentage ?? 100 }};
-    const flatDeduction = {{ $forwarding->flat_deduction ?? 0 }};
+    const percentage = {{ $forwarding->forward_percentage ?? 100 }};
+    const flatFee = {{ $forwarding->flat_fee ?? 0 }};
     
     const afterPercentage = amount * (percentage / 100);
-    const afterDeduction = Math.max(0, afterPercentage - flatDeduction);
+    const afterDeduction = Math.max(0, afterPercentage - flatFee);
     
     document.getElementById('calc_result').textContent = afterDeduction.toLocaleString();
 }

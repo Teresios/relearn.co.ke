@@ -211,11 +211,11 @@
         <table class="meta-table">
             <tr>
                 <td>Report Period:</td>
-                <td>{{ ($report->start_date ?? $startDate ?? now()->subDays(30))->format('M d, Y') }} - {{ ($report->end_date ?? $endDate ?? now())->format('M d, Y') }}</td>
+                <td>{{ ($report->period_start ?? now()->subDays(30))->format('M d, Y') }} - {{ ($report->period_end ?? now())->format('M d, Y') }}</td>
             </tr>
             <tr>
                 <td>Report Type:</td>
-                <td>{{ ucfirst($report->type ?? $reportType ?? 'custom') }}</td>
+                <td>{{ ucfirst($report->report_type ?? 'custom') }}</td>
             </tr>
             @if(isset($transactionType) && $transactionType)
             <tr>
@@ -361,8 +361,8 @@
                 @foreach($transactions as $transaction)
                     <tr>
                         <td style="font-family: monospace; font-size: 10px;">{{ $transaction->transaction_id }}</td>
-                        <td><span class="type-badge type-{{ $transaction->transaction_type }}">{{ strtoupper($transaction->transaction_type) }}</span></td>
-                        <td>{{ $transaction->phone_number }}</td>
+                        <td><span class="type-badge type-{{ $transaction->type }}">{{ strtoupper($transaction->type) }}</span></td>
+                        <td>{{ $transaction->sender_phone ?? $transaction->receiver_phone }}</td>
                         <td class="amount">KES {{ number_format($transaction->amount, 2) }}</td>
                         <td class="status-{{ $transaction->status }}">{{ ucfirst($transaction->status) }}</td>
                         <td>{{ $transaction->created_at->format('M d, Y H:i') }}</td>
