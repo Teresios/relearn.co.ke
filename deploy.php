@@ -81,16 +81,16 @@ $commands = [
     "git reset --hard origin/{$branch} 2>&1",
 
     // Step 2: Sync updated files from public_html to relearn/ (the live Laravel root)
-    // Sync key Laravel directories individually to avoid overwriting .env, storage, vendor, etc.
-    "cp -af {$repo_path}/app {$laravel_root}/ 2>&1",
-    "cp -af {$repo_path}/config {$laravel_root}/ 2>&1",
-    "cp -af {$repo_path}/database {$laravel_root}/ 2>&1",
-    "cp -af {$repo_path}/resources {$laravel_root}/ 2>&1",
-    "cp -af {$repo_path}/routes {$laravel_root}/ 2>&1",
-    "cp -af {$repo_path}/public {$laravel_root}/ 2>&1",
-    "cp -f {$repo_path}/composer.json {$laravel_root}/ 2>&1",
-    "cp -f {$repo_path}/composer.lock {$laravel_root}/ 2>&1",
-    "cp -f {$repo_path}/artisan {$laravel_root}/ 2>&1",
+    // Only copy directories/files that exist in the repo; || true prevents failure on missing items
+    "[ -d {$repo_path}/app ] && cp -af {$repo_path}/app {$laravel_root}/ 2>&1 || true",
+    "[ -d {$repo_path}/config ] && cp -af {$repo_path}/config {$laravel_root}/ 2>&1 || true",
+    "[ -d {$repo_path}/database ] && cp -af {$repo_path}/database {$laravel_root}/ 2>&1 || true",
+    "[ -d {$repo_path}/resources ] && cp -af {$repo_path}/resources {$laravel_root}/ 2>&1 || true",
+    "[ -d {$repo_path}/routes ] && cp -af {$repo_path}/routes {$laravel_root}/ 2>&1 || true",
+    "[ -d {$repo_path}/public ] && cp -af {$repo_path}/public {$laravel_root}/ 2>&1 || true",
+    "[ -f {$repo_path}/composer.json ] && cp -f {$repo_path}/composer.json {$laravel_root}/ 2>&1 || true",
+    "[ -f {$repo_path}/composer.lock ] && cp -f {$repo_path}/composer.lock {$laravel_root}/ 2>&1 || true",
+    "[ -f {$repo_path}/artisan ] && cp -f {$repo_path}/artisan {$laravel_root}/ 2>&1 || true",
 
     // Step 3: Run Laravel build commands in the live relearn/ directory
     "cd {$laravel_root}",
