@@ -13,7 +13,7 @@
 // CONFIGURATION
 // ============================================
 $secret = getenv('DEPLOY_SECRET') ?: 'CHANGE_THIS_TO_A_RANDOM_SECRET_KEY';
-$repo_path = dirname(__DIR__); // Goes up from public_html to the project root
+$repo_path = __DIR__; // Git repo is in public_html
 $branch = 'main';
 $log_file = __DIR__ . '/../storage/logs/deploy.log';
 
