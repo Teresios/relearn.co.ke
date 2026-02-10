@@ -52,3 +52,57 @@ jobs:
           else
             echo "✅ Site is live and responding!"
           fi
+
+      - name: 📢 Discord notification (success)
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          COMMIT_MSG=$(echo '${{ github.event.head_commit.message }}' | head -1)
+          COMMIT_SHA="${{ github.sha }}"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          AUTHOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          COMMIT_URL="https://github.com/${REPO}/commit/${COMMIT_SHA}"
+          
+          curl -s -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"✅ Deploy Successful\",
+                \"description\": \"**relearn.co.ke** has been updated!\",
+                \"color\": 3066993,
+                \"fields\": [
+                  {\"name\": \"📝 Commit\", \"value\": \"[\`${SHORT_SHA}\`](${COMMIT_URL}) ${COMMIT_MSG}\", \"inline\": false},
+                  {\"name\": \"👤 Author\", \"value\": \"${AUTHOR}\", \"inline\": true},
+                  {\"name\": \"🌐 Site\", \"value\": \"[relearn.co.ke](https://www.relearn.co.ke)\", \"inline\": true}
+                ],
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+                \"footer\": {\"text\": \"Relearn Deploy Bot\"}
+              }]
+            }" \
+            "$DISCORD_WEBHOOK"
+
+      - name: 📢 Discord notification (failure)
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          COMMIT_MSG=$(echo '${{ github.event.head_commit.message }}' | head -1)
+          SHORT_SHA="${{ github.sha }}"
+          SHORT_SHA="${SHORT_SHA:0:7}"
+          
+          curl -s -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"❌ Deploy Failed\",
+                \"description\": \"Deployment to **relearn.co.ke** failed!\",
+                \"color\": 15158332,
+                \"fields\": [
+                  {\"name\": \"📝 Commit\", \"value\": \"\`${SHORT_SHA}\` ${COMMIT_MSG}\", \"inline\": false},
+                  {\"name\": \"🔗 Actions\", \"value\": \"[View Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": true}
+                ],
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+                \"footer\": {\"text\": \"Relearn Deploy Bot\"}
+              }]
+            }" \
+            "$DISCORD_WEBHOOK"
