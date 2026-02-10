@@ -29,9 +29,14 @@ return [
     'timeout_url' => env('MPESA_TIMEOUT_URL', ''),
 
     // B2C Configuration
-    'b2c_shortcode' => env('MPESA_B2C_SHORTCODE', ''),
-    'b2c_initiator' => env('MPESA_B2C_INITIATOR', ''),
-    'b2c_password' => env('MPESA_B2C_PASSWORD', ''),
-    'b2c_result_url' => env('MPESA_B2C_RESULT_URL', ''),
-    'b2c_queue_timeout_url' => env('MPESA_B2C_QUEUE_TIMEOUT_URL', ''),
+    'b2c_shortcode' => env('MPESA_B2C_SHORTCODE', env('MPESA_SHORTCODE', '')),
+    'initiator_name' => env('MPESA_INITIATOR_NAME', ''),
+    'security_credential' => env('MPESA_SECURITY_CREDENTIAL', ''),
+    'b2c_result_url' => env('MPESA_B2C_RESULT_URL', env('MPESA_CALLBACK_URL', '')),
+    'b2c_timeout_url' => env('MPESA_B2C_TIMEOUT_URL', env('MPESA_TIMEOUT_URL', '')),
+
+    // B2B Configuration
+    'b2b_shortcode' => env('MPESA_B2B_SHORTCODE', env('MPESA_SHORTCODE', '')),
+    'b2b_result_url' => env('MPESA_B2B_RESULT_URL', env('MPESA_CALLBACK_URL', '')),
+    'b2b_timeout_url' => env('MPESA_B2B_TIMEOUT_URL', env('MPESA_TIMEOUT_URL', '')),
 ];

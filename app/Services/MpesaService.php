@@ -287,7 +287,7 @@ class MpesaService
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
                 'Content-Type' => 'application/json',
-            ])->post($this->getBaseUrl() . '/mpesa/b2c/v1/paymentrequest', $requestData);
+            ])->post($this->getBaseUrl() . '/mpesa/b2c/v3/paymentrequest', $requestData);
 
             $responseData = $response->json() ?? [];
 
