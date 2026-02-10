@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\AffiliateLink;
 use App\Models\AffiliateReferral;
+use App\Events\AffiliateLinkClicked;
 
 class ReferralController extends Controller
 {
@@ -29,6 +30,9 @@ class ReferralController extends Controller
             'referral_id' => $referral->id,
             'user_id' => auth()->id(),
         ]);
+
+        // Fire event to notify Discord about the click
+        AffiliateLinkClicked::dispatch($link, $referral, request()->ip());
 
         // Redirect to the associated product page
         return redirect()->route('products.show', $link->product_id);
