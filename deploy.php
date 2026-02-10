@@ -73,11 +73,26 @@ putenv("HOME={$home_dir}");
 putenv("COMPOSER_HOME={$home_dir}/.composer");
 
 $commands = [
+    // Step 1: Pull latest code into public_html (git repo)
     "cd {$repo_path}",
     "export HOME={$home_dir}",
     "export COMPOSER_HOME={$home_dir}/.composer",
     "git fetch origin {$branch} 2>&1",
     "git reset --hard origin/{$branch} 2>&1",
+
+    // Step 2: Sync updated files from public_html to relearn/ (the live Laravel root)
+    // Sync key Laravel directories individually to avoid overwriting .env, storage, vendor, etc.
+    "cp -af {$repo_path}/app {$laravel_root}/ 2>&1",
+    "cp -af {$repo_path}/config {$laravel_root}/ 2>&1",
+    "cp -af {$repo_path}/database {$laravel_root}/ 2>&1",
+    "cp -af {$repo_path}/resources {$laravel_root}/ 2>&1",
+    "cp -af {$repo_path}/routes {$laravel_root}/ 2>&1",
+    "cp -af {$repo_path}/public {$laravel_root}/ 2>&1",
+    "cp -f {$repo_path}/composer.json {$laravel_root}/ 2>&1",
+    "cp -f {$repo_path}/composer.lock {$laravel_root}/ 2>&1",
+    "cp -f {$repo_path}/artisan {$laravel_root}/ 2>&1",
+
+    // Step 3: Run Laravel build commands in the live relearn/ directory
     "cd {$laravel_root}",
     "composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || true",
     "php artisan config:cache 2>&1 || true",
