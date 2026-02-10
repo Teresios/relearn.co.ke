@@ -180,7 +180,7 @@ Route::middleware(['auth', 'role:product_admin'])->prefix('products-admin')->nam
 });
 
 // Admin routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -299,7 +299,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 // Admin-only notification polling route for dashboard numbers
-Route::middleware(['auth', 'role:admin'])
+Route::middleware(['auth', 'role:admin|super_admin'])
     ->get('/dashboard/notifications', [DashboardNotificationController::class, 'check'])
     ->name('dashboard.notifications');
 

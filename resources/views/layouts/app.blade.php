@@ -243,6 +243,11 @@
                                     <i class="bi bi-speedometer2 me-1"></i> Admin Dashboard
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.mpesa.dashboard') }}" class="nav-link {{ request()->routeIs('admin.mpesa.*') ? 'active' : '' }}">
+                                    <i class="bi bi-phone me-1"></i> M-Pesa
+                                </a>
+                            </li>
                         @endif
 
                         @if(Auth::user()->hasRole('product_admin'))
@@ -281,6 +286,11 @@
                                     <li>
                                         <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
                                             <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('admin.mpesa.dashboard') }}">
+                                            <i class="bi bi-phone me-2"></i>M-Pesa Dashboard
                                         </a>
                                     </li>
                                     <li>

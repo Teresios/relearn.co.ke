@@ -358,6 +358,10 @@
                     <i class="bi bi-easel"></i>
                     Masterclasses
                 </a>
+                <a href="{{ route('admin.mpesa.dashboard') }}" class="quick-action-btn">
+                    <i class="bi bi-phone"></i>
+                    M-Pesa
+                </a>
                 <button class="quick-action-btn" onclick="alert('System health check')">
                     <i class="bi bi-shield-check"></i>
                     Health
