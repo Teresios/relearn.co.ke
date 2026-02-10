@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\AffiliateLinkClicked;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -13,6 +14,13 @@ class SendDiscordAffiliateLinkNotification
      */
     public function handle(AffiliateLinkClicked $event): void
     {
+        // Deduplicate: skip if same link + IP was notified in the last 30 seconds
+        $dedupeKey = 'discord-affiliate-click:' . $event->link->id . ':' . ($event->visitorIp ?? 'unknown');
+        if (Cache::has($dedupeKey)) {
+            return;
+        }
+        Cache::put($dedupeKey, true, 30);
+
         $webhookUrl = config('discord.affiliate_webhook');
 
         if (empty($webhookUrl)) {
