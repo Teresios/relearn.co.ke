@@ -1,0 +1,38 @@
+name: 🚀 Deploy to Live Server
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to relearn.co.ke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔔 Trigger deployment webhook
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$(echo -n '{"ref":"refs/heads/main","pusher":{"name":"github-actions"}}' | openssl dgst -sha256 -hmac '${{ secrets.DEPLOY_SECRET }}' | awk '{print $2}')" \
+            -d '{"ref":"refs/heads/main","pusher":{"name":"github-actions"}}' \
+            https://www.relearn.co.ke/deploy.php)
+          
+          echo "Response code: $RESPONSE"
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Deployment failed with HTTP $RESPONSE"
+            exit 1
+          fi
+          echo "✅ Deployment triggered successfully"
+
+      - name: ✅ Verify deployment
+        run: |
+          sleep 10
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://www.relearn.co.ke/)
+          echo "Site responded with HTTP $HTTP_CODE"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "⚠️ Warning: Site returned HTTP $HTTP_CODE after deploy"
+          else
+            echo "✅ Site is live and responding!"
+          fi

@@ -1,0 +1,44 @@
+# Environment files
+.env
+.env.backup
+.env.production
+.env.staging
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Laravel storage & cache
+/storage/*.key
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*.log
+/bootstrap/cache/*
+
+# IDE & OS
+/.idea
+/.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build outputs
+/public/hot
+/public/storage
+/public/mix-manifest.json
+
+# Deployment secrets - NEVER commit these
+upload.ftp
+upload.ps1
+*.ftp
+
+# Test files
+test.html
+testwebroot.txt
+test_guest_flow.php
+test-affiliate-email.php
+
+# Compiled assets
+/public/build/
