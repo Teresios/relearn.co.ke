@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('downloads', function (Blueprint $table) {
-            // Track which format was downloaded (epub or pdf)
-            $table->enum('file_format', ['epub', 'pdf'])->default('epub')->after('token');
+            if (!Schema::hasColumn('downloads', 'file_format')) {
+                $table->enum('file_format', ['epub', 'pdf'])->default('epub')->after('token');
+            }
         });
     }
 
