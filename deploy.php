@@ -12,10 +12,16 @@
 // ============================================
 // CONFIGURATION
 // ============================================
-$secret = getenv('DEPLOY_SECRET') ?: 'CHANGE_THIS_TO_A_RANDOM_SECRET_KEY';
+// Read secret from .deploy-secret file (not tracked by git)
+$secret_file = __DIR__ . '/.deploy-secret';
+if (file_exists($secret_file)) {
+    $secret = trim(file_get_contents($secret_file));
+} else {
+    $secret = getenv('DEPLOY_SECRET') ?: '';
+}
 $repo_path = __DIR__; // Git repo is in public_html
 $branch = 'main';
-$log_file = __DIR__ . '/../storage/logs/deploy.log';
+$log_file = __DIR__ . '/storage/logs/deploy.log';
 
 // ============================================
 // SECURITY CHECKS

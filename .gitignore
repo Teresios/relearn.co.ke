@@ -33,6 +33,7 @@ Thumbs.db
 upload.ftp
 upload.ps1
 *.ftp
+.deploy-secret
 
 # Test files
 test.html
