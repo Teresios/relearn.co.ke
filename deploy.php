@@ -67,7 +67,7 @@ if ($ref !== "refs/heads/{$branch}") {
 logDeploy("🚀 Deployment started by push from " . ($data['pusher']['name'] ?? 'unknown'));
 
 // Set HOME for composer (required when running from web context)
-$home_dir = getenv('HOME') ?: posix_getpwuid(posix_getuid())['dir'] ?? '/home/relearnc';
+$home_dir = getenv('HOME') ?: '/home/relearnc';
 putenv("HOME={$home_dir}");
 putenv("COMPOSER_HOME={$home_dir}/.composer");
 
