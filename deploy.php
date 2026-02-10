@@ -92,6 +92,11 @@ $commands = [
     "[ -f {$repo_path}/composer.lock ] && cp -f {$repo_path}/composer.lock {$laravel_root}/ 2>&1 || true",
     "[ -f {$repo_path}/artisan ] && cp -f {$repo_path}/artisan {$laravel_root}/ 2>&1 || true",
 
+    // Step 2.5: Strip UTF-8 BOM from all PHP files (prevents namespace fatal errors)
+    "find {$laravel_root}/app -name '*.php' -exec sed -i '1s/^\\xEF\\xBB\\xBF//' {} \\; 2>&1 || true",
+    "find {$laravel_root}/config -name '*.php' -exec sed -i '1s/^\\xEF\\xBB\\xBF//' {} \\; 2>&1 || true",
+    "find {$laravel_root}/routes -name '*.php' -exec sed -i '1s/^\\xEF\\xBB\\xBF//' {} \\; 2>&1 || true",
+
     // Step 3: Run Laravel build commands in the live relearn/ directory
     "cd {$laravel_root}",
     "composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || true",
